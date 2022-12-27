@@ -1,14 +1,12 @@
-import org.jdatepicker.impl.JDatePanelImpl;
-import org.jdatepicker.impl.JDatePickerImpl;
-import org.jdatepicker.impl.SqlDateModel;
-import org.jdatepicker.impl.UtilDateModel;
+import com.toedter.calendar.JDateChooser;
+import com.toedter.calendar.JTextFieldDateEditor;
 
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import javax.swing.*;
 
-public class DailyPlanner extends JFrame {
+public class DailyPlanner {
 
     JFrame frame = new JFrame();
 
@@ -29,23 +27,38 @@ public class DailyPlanner extends JFrame {
     private JTextField searchField;
 
     private JComboBox importanceBox;
+    private JButton pickDateButton;
 
     private DefaultListModel<Task> listModel;
     private JList<Task> taskUIList;
 
+    JDateChooser dateChooser = new JDateChooser();
+
     HashMap<Integer, Task> tasksHashMap = new HashMap<>();
 
-    public DailyPlanner() {}
+    HashMap<String, DailyPlanner> mapOfPlannings = new HashMap<>();
+
+
+    public DailyPlanner() {
+        pickDateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                addPlannerIfNewKey();
+
+            }
+        });
+    }
 
     public void run() {
         frame.setContentPane(panel);
         frame.setTitle("Daily planner");
         frame.pack();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 400);
+
 
         panelCreation();
-        JdatePicker();
+        JdateChooser();
         frame.setVisible(true);
     }
 
@@ -56,7 +69,8 @@ public class DailyPlanner extends JFrame {
 
         JScrollPane scrollPane = new JScrollPane(taskUIList);
         scrollPane.setPreferredSize(new Dimension(250, 80));
-        taskUIList.setCellRenderer(new MyCellRenderer() {});
+        taskUIList.setCellRenderer(new MyCellRenderer() {
+        });
 
         taskField.addFocusListener(new FocusAdapter() {
             @Override
@@ -100,12 +114,13 @@ public class DailyPlanner extends JFrame {
                 int minutes = Integer.parseInt(minutesTextField.getText());
                 tasksHashMap.put((hours + minutes), task);
 
-                TreeMap<Integer, Task> sorted = new TreeMap<>(sortHashMap());
                 listModel.clear();
 
+                TreeMap<Integer, Task> sorted = new TreeMap<>(sortHashMap());
                 for (Task t : sorted.values()) {
                     listModel.addElement(t);
                 }
+
 
                 taskUIList.setFont(new Font("serif", Font.PLAIN, 20));
 
@@ -129,6 +144,7 @@ public class DailyPlanner extends JFrame {
         panel2.add(scrollPane, BorderLayout.CENTER);
     }
 
+
     public TreeMap<Integer, Task> sortHashMap() {
         return new TreeMap<>(tasksHashMap);
     }
@@ -147,18 +163,31 @@ public class DailyPlanner extends JFrame {
         }
     }
 
-    public void JdatePicker() {
-        UtilDateModel model = new UtilDateModel();
-
-        Properties p = new Properties();
-        p.put("text.today", "Today");
-        p.put("text.month", "Month");
-        p.put("text.year", "Year");
-        JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
-        JDatePickerImpl datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
-        datePicker.setPreferredSize(new Dimension(700,700));
-        datePicker.getComponent(0).setPreferredSize(new Dimension(100,26)); //JFormattedTextField
-        mainCalendarPanel.add(datePicker);
+    public void JdateChooser() {
+        dateChooser.setDateFormatString("yyyy-MM-dd");
+        dateChooser.getJCalendar().setPreferredSize(new Dimension(325, 400));
+        mainCalendarPanel.setLayout(new GridLayout(1, 1));
+        mainCalendarPanel.add(dateChooser);
     }
 
+    public void addPlannerIfNewKey() {
+        String[] s = dateChooser.getDate().toLocaleString().split(" ");
+        String dateString = s[0] + "/" + s[1] + "/" + s[2];
+        if (mapOfPlannings.containsKey(dateString)) {
+            mapOfPlannings.get(dateString);
+            DailyPlanner planner = mapOfPlannings.get(dateString);
+
+            listModel.clear();
+            TreeMap<Integer, Task> sortedTasks = new TreeMap<>(planner.sortHashMap());
+
+            for (Task t : sortedTasks.values()) {
+                listModel.addElement(t);
+            }
+            System.out.println("already in map");
+        }
+        else {
+            mapOfPlannings.put(dateString, new DailyPlanner());
+            System.out.println(mapOfPlannings.entrySet());
+        }
+    }
 }
