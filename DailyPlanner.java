@@ -115,21 +115,9 @@ public class DailyPlanner {
                 String dateString = s[0] + "/" + s[1] + "/" + s[2];
 
                 Task task = new Task(taskField.getText(), Integer.parseInt(hoursTextField.getText()), Integer.parseInt(minutesTextField.getText()), (String) importanceBox.getSelectedItem());
-                int hours = Integer.parseInt(hoursTextField.getText()) * 100;
-                int minutes = Integer.parseInt(minutesTextField.getText());
+                mapOfPlannings.get(dateString).addTasks(task);
 
-                tasksHashMap.put((hours + minutes), task);
-
-                listModel.clear();
-
-                TreeMap<Integer, Task> sorted = new TreeMap<>(sortHashMap());
-                for (Task t : sorted.values()) {
-
-                    mapOfPlannings.get(dateString).addTask(t);
-                    listModel.addElement(t);
-                }
-
-                //taskUIList.setFont(new Font("serif", Font.PLAIN, 20));
+                voegJlistToe();
 
                 taskField.setText("Add new task");
                 hoursTextField.setText("Hour");
@@ -194,6 +182,22 @@ public class DailyPlanner {
         }
     }
     public void voegJlistToe(){
+        String[] s = dateChooser.getDate().toLocaleString().split(" ");
+        String dateString = s[0] + "/" + s[1] + "/" + s[2];
 
+        ArrayList<Task> list = mapOfPlannings.get(dateString).getTasks();
+        for(Task t : list){
+            tasksHashMap.put((t.getHours() + t.getMinutes()), t);
+        }
+
+        listModel.clear();
+
+        TreeMap<Integer, Task> sorted = new TreeMap<>(sortHashMap());
+        for (Task t : sorted.values()) {
+
+            mapOfPlannings.get(dateString).addTasks(t);
+            listModel.addElement(t);
+        }
+        taskUIList.setFont(new Font("serif", Font.PLAIN, 20));
     }
 }
