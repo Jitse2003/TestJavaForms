@@ -1,5 +1,4 @@
 import com.toedter.calendar.JDateChooser;
-import com.toedter.calendar.JTextFieldDateEditor;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -36,18 +35,11 @@ public class DailyPlanner {
 
     HashMap<Integer, Task> tasksHashMap = new HashMap<>();
 
-    HashMap<String, DailyPlanner> mapOfPlannings = new HashMap<>();
+    HashMap<String, DailyTasks> mapOfPlannings = new HashMap<>();
 
 
     public DailyPlanner() {
-        pickDateButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
 
-                addPlannerIfNewKey();
-
-            }
-        });
     }
 
     public void run() {
@@ -97,6 +89,16 @@ public class DailyPlanner {
             }
         });
 
+        //PICK DATE BUTTON
+        pickDateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                addPlannerIfNewKey();
+
+            }
+        });
+
         //SEARCH BUTTON
         searchButton.addActionListener(new ActionListener() {
             @Override
@@ -109,20 +111,25 @@ public class DailyPlanner {
         //ADD BUTTON
         addButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                String[] s = dateChooser.getDate().toLocaleString().split(" ");
+                String dateString = s[0] + "/" + s[1] + "/" + s[2];
+
                 Task task = new Task(taskField.getText(), Integer.parseInt(hoursTextField.getText()), Integer.parseInt(minutesTextField.getText()), (String) importanceBox.getSelectedItem());
                 int hours = Integer.parseInt(hoursTextField.getText()) * 100;
                 int minutes = Integer.parseInt(minutesTextField.getText());
+
                 tasksHashMap.put((hours + minutes), task);
 
                 listModel.clear();
 
                 TreeMap<Integer, Task> sorted = new TreeMap<>(sortHashMap());
                 for (Task t : sorted.values()) {
+
+                    mapOfPlannings.get(dateString).addTask(t);
                     listModel.addElement(t);
                 }
 
-
-                taskUIList.setFont(new Font("serif", Font.PLAIN, 20));
+                //taskUIList.setFont(new Font("serif", Font.PLAIN, 20));
 
                 taskField.setText("Add new task");
                 hoursTextField.setText("Hour");
@@ -174,20 +181,19 @@ public class DailyPlanner {
         String[] s = dateChooser.getDate().toLocaleString().split(" ");
         String dateString = s[0] + "/" + s[1] + "/" + s[2];
         if (mapOfPlannings.containsKey(dateString)) {
-            mapOfPlannings.get(dateString);
-            DailyPlanner planner = mapOfPlannings.get(dateString);
 
             listModel.clear();
-            TreeMap<Integer, Task> sortedTasks = new TreeMap<>(planner.sortHashMap());
 
-            for (Task t : sortedTasks.values()) {
-                listModel.addElement(t);
-            }
+
             System.out.println("already in map");
         }
         else {
-            mapOfPlannings.put(dateString, new DailyPlanner());
+            mapOfPlannings.put(dateString, new DailyTasks());
+            mapOfPlannings.get(dateString).setDateDailyTask(dateString);
             System.out.println(mapOfPlannings.entrySet());
         }
+    }
+    public void voegJlistToe(){
+
     }
 }
