@@ -170,12 +170,11 @@ public class DailyPlanner {
         String dateString = s[0] + "/" + s[1] + "/" + s[2];
         if (mapOfPlannings.containsKey(dateString)) {
 
-            listModel.clear();
-
-
+            voegJlistToe();
             System.out.println("already in map");
         }
         else {
+            listModel.clear();
             mapOfPlannings.put(dateString, new DailyTasks());
             mapOfPlannings.get(dateString).setDateDailyTask(dateString);
             System.out.println(mapOfPlannings.entrySet());
@@ -186,6 +185,7 @@ public class DailyPlanner {
         String dateString = s[0] + "/" + s[1] + "/" + s[2];
 
         ArrayList<Task> list = mapOfPlannings.get(dateString).getTasks();
+        tasksHashMap.clear();
         for(Task t : list){
             tasksHashMap.put((t.getHours() + t.getMinutes()), t);
         }
