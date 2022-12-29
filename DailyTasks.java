@@ -27,4 +27,8 @@ private String dateDailyTask;
     public void setDateDailyTask(String dateDailyTask) {
         this.dateDailyTask = dateDailyTask;
     }
+
+    public void setTasks(ArrayList<Task> tasks) {
+        this.tasks = tasks;
+    }
 }

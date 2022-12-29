@@ -37,6 +37,7 @@ public class DailyPlanner {
 
     HashMap<String, DailyTasks> mapOfPlannings = new HashMap<>();
 
+    String dateString;
 
     public DailyPlanner() {
 
@@ -111,12 +112,8 @@ public class DailyPlanner {
         //ADD BUTTON
         addButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String[] s = dateChooser.getDate().toLocaleString().split(" ");
-                String dateString = s[0] + "/" + s[1] + "/" + s[2];
-
                 Task task = new Task(taskField.getText(), Integer.parseInt(hoursTextField.getText()), Integer.parseInt(minutesTextField.getText()), (String) importanceBox.getSelectedItem());
                 mapOfPlannings.get(dateString).addTasks(task);
-
                 voegJlistToe();
 
                 taskField.setText("Add new task");
@@ -129,11 +126,13 @@ public class DailyPlanner {
         removeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 int selectedIndex = taskUIList.getSelectedIndex();
-                if (selectedIndex != -1) {
-                    listModel.remove(selectedIndex);
-                    taskUIList.setSelectedIndex(-1);
-                    taskField.setText("");
-                }
+                int hours = listModel.get(selectedIndex).getHours();
+                int minutes = listModel.get(selectedIndex).getMinutes();
+                ArrayList<Task> taskList = mapOfPlannings.get(dateString).getTasks();
+                taskList.removeIf(t -> t.getHours() == hours && t.getMinutes() == minutes);
+                mapOfPlannings.get(dateString).setTasks(taskList);
+                System.out.println(mapOfPlannings);
+                voegJlistToe();
             }
         });
         panel2.add(scrollPane, BorderLayout.CENTER);
@@ -167,35 +166,26 @@ public class DailyPlanner {
 
     public void addPlannerIfNewKey() {
         String[] s = dateChooser.getDate().toLocaleString().split(" ");
-        String dateString = s[0] + "/" + s[1] + "/" + s[2];
+        dateString = s[0] + "/" + s[1] + "/" + s[2];
         if (mapOfPlannings.containsKey(dateString)) {
-
             voegJlistToe();
-            System.out.println("already in map");
         }
         else {
             listModel.clear();
             mapOfPlannings.put(dateString, new DailyTasks());
             mapOfPlannings.get(dateString).setDateDailyTask(dateString);
-            System.out.println(mapOfPlannings.entrySet());
         }
     }
     public void voegJlistToe(){
-        String[] s = dateChooser.getDate().toLocaleString().split(" ");
-        String dateString = s[0] + "/" + s[1] + "/" + s[2];
-
         ArrayList<Task> list = mapOfPlannings.get(dateString).getTasks();
         tasksHashMap.clear();
         for(Task t : list){
             tasksHashMap.put((t.getHours() + t.getMinutes()), t);
         }
-
         listModel.clear();
 
         TreeMap<Integer, Task> sorted = new TreeMap<>(sortHashMap());
         for (Task t : sorted.values()) {
-
-            mapOfPlannings.get(dateString).addTasks(t);
             listModel.addElement(t);
         }
         taskUIList.setFont(new Font("serif", Font.PLAIN, 20));

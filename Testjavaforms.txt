@@ -1,3 +1,4 @@
 -Dark mode
 -DailyPlanner.Calender met dagen voor dagplanning te veranderen
 -Hashmap met dates
+-Try Catch of auto date op deze dag
