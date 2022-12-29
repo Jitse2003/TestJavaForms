@@ -12,17 +12,13 @@ public class Task {
 
     }
 
-    public boolean isInList(String filter) {
-        if (filter.isBlank()) {
-            return true;
-        }
-        return getOmschrijving().equals(filter);
+    public String getFormatCSV() {
+        return hours + ";" + minutes + ";" + omschrijving + ";"  + importance + "nieuw\n";
     }
 
     @Override
     public String toString() {
-        return hours + ":" + minutes + " " + omschrijving;
-    }
+        return hours + ":" + minutes + " " + omschrijving;}
 
     public String getOmschrijving() {
         return omschrijving;

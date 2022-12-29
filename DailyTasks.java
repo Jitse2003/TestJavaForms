@@ -1,8 +1,11 @@
 import java.util.ArrayList;
+import java.util.List;
 
 public class DailyTasks {
 private ArrayList<Task> tasks = new ArrayList<>();
 private String dateDailyTask;
+
+
 
     @Override
     public String toString() {
@@ -10,6 +13,12 @@ private String dateDailyTask;
                 "task=" + tasks +
                 ", dateDailyTask='" + dateDailyTask + '\'' +
                 '}';
+    }
+
+
+
+    public void addTask(Task task) {
+        tasks.add(task);
     }
 
     public ArrayList<Task> getTasks() {
@@ -31,4 +40,6 @@ private String dateDailyTask;
     public void setTasks(ArrayList<Task> tasks) {
         this.tasks = tasks;
     }
+
+
 }

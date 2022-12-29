@@ -2,7 +2,9 @@ import com.toedter.calendar.JDateChooser;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
 import java.util.*;
+import java.util.List;
 import javax.swing.*;
 
 public class DailyPlanner {
@@ -40,7 +42,6 @@ public class DailyPlanner {
     String dateString;
 
     public DailyPlanner() {
-
     }
 
     public void run() {
@@ -49,10 +50,12 @@ public class DailyPlanner {
         frame.pack();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-
         panelCreation();
         JdateChooser();
+        readMapFromCSV("Files/tasks.csv");
+
         frame.setVisible(true);
+        setDayToday();
     }
 
     public void panelCreation() {
@@ -119,6 +122,8 @@ public class DailyPlanner {
                 taskField.setText("Add new task");
                 hoursTextField.setText("Hour");
                 minutesTextField.setText("Minutes");
+
+                writeMapToCSV("Files/tasks.csv");
             }
         });
 
@@ -131,13 +136,25 @@ public class DailyPlanner {
                 ArrayList<Task> taskList = mapOfPlannings.get(dateString).getTasks();
                 taskList.removeIf(t -> t.getHours() == hours && t.getMinutes() == minutes);
                 mapOfPlannings.get(dateString).setTasks(taskList);
-                System.out.println(mapOfPlannings);
+
+                writeMapToCSV("Files/tasks.csv");
                 voegJlistToe();
             }
         });
         panel2.add(scrollPane, BorderLayout.CENTER);
     }
 
+    public void setDayToday() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        dateChooser.setCalendar(new GregorianCalendar(year, month, day) {
+        });
+        dateString = (month + 1) + "/" + day + "/" + year;
+        addPlannerIfNewKey();
+    }
 
     public TreeMap<Integer, Task> sortHashMap() {
         return new TreeMap<>(tasksHashMap);
@@ -169,17 +186,17 @@ public class DailyPlanner {
         dateString = s[0] + "/" + s[1] + "/" + s[2];
         if (mapOfPlannings.containsKey(dateString)) {
             voegJlistToe();
-        }
-        else {
+        } else {
             listModel.clear();
             mapOfPlannings.put(dateString, new DailyTasks());
             mapOfPlannings.get(dateString).setDateDailyTask(dateString);
         }
     }
-    public void voegJlistToe(){
+
+    public void voegJlistToe() {
         ArrayList<Task> list = mapOfPlannings.get(dateString).getTasks();
         tasksHashMap.clear();
-        for(Task t : list){
+        for (Task t : list) {
             tasksHashMap.put((t.getHours() + t.getMinutes()), t);
         }
         listModel.clear();
@@ -190,4 +207,57 @@ public class DailyPlanner {
         }
         taskUIList.setFont(new Font("serif", Font.PLAIN, 20));
     }
+
+
+    public String toCSV(String date) {
+        DailyTasks dailyTasks = mapOfPlannings.get(date);
+        StringBuilder sb = new StringBuilder();
+        sb.append(dailyTasks.getDateDailyTask()).append(",");
+        for (Task task : dailyTasks.getTasks()) {
+            sb.append(task.getOmschrijving()).append(",")
+                    .append(task.getHours()).append(",")
+                    .append(task.getMinutes()).append(",")
+                    .append(task.getImportance()).append(",");
+        }
+        return sb.toString();
+    }
+
+    public void fromCSV(String csv) {
+        String[] values = csv.split(",");
+        String date = values[0];
+        DailyTasks dailyTasks = new DailyTasks();
+        dailyTasks.setDateDailyTask(date);
+        for (int i = 1; i < values.length; i += 4) {
+            String description = values[i];
+            int hours = Integer.parseInt(values[i + 1]);
+            int minutes = Integer.parseInt(values[i + 2]);
+            String importance = values[i + 3];
+            dailyTasks.addTask(new Task(description, hours, minutes, importance));
+        }
+        mapOfPlannings.put(date, dailyTasks);
+    }
+
+    public void writeMapToCSV(String filePath) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            for (String date : mapOfPlannings.keySet()) {
+                String csv = toCSV(date);
+                writer.write(csv);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void readMapFromCSV(String filePath) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                fromCSV(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
