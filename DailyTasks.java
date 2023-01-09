@@ -25,10 +25,6 @@ private String dateDailyTask;
         return tasks;
     }
 
-    public void addTasks(Task task) {
-        this.tasks.add(task);
-    }
-
     public String getDateDailyTask() {
         return dateDailyTask;
     }

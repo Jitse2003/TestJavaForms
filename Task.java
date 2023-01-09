@@ -11,11 +11,6 @@ public class Task {
         this.importance = importance;
 
     }
-
-    public String getFormatCSV() {
-        return hours + ";" + minutes + ";" + omschrijving + ";"  + importance + "nieuw\n";
-    }
-
     @Override
     public String toString() {
         return hours + ":" + minutes + " " + omschrijving;}

@@ -20,8 +20,6 @@ public class DailyPlanner {
     private JButton removeButton;
     private JButton addButton;
 
-    private JTabbedPane tabbedPane;
-
     private JTextField taskField;
     private JTextField hoursTextField;
     private JTextField minutesTextField;
@@ -29,17 +27,18 @@ public class DailyPlanner {
 
     private JComboBox importanceBox;
     private JButton pickDateButton;
+    private JTabbedPane tabbedPane;
 
     private DefaultListModel<Task> listModel;
     private JList<Task> taskUIList;
 
-    JDateChooser dateChooser = new JDateChooser();
+    public JDateChooser dateChooser = new JDateChooser();
 
-    HashMap<Integer, Task> tasksHashMap = new HashMap<>();
+    public HashMap<Integer, Task> tasksHashMap = new HashMap<>();
 
-    HashMap<String, DailyTasks> mapOfPlannings = new HashMap<>();
+    public HashMap<String, DailyTasks> mapOfPlannings = new HashMap<>();
 
-    String dateString;
+    public String dateString;
 
     public DailyPlanner() {
     }
@@ -65,7 +64,10 @@ public class DailyPlanner {
 
         JScrollPane scrollPane = new JScrollPane(taskUIList);
         scrollPane.setPreferredSize(new Dimension(250, 80));
+
         taskUIList.setCellRenderer(new MyCellRenderer() {
+
+
         });
 
         taskField.addFocusListener(new FocusAdapter() {
@@ -116,7 +118,7 @@ public class DailyPlanner {
         addButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 Task task = new Task(taskField.getText(), Integer.parseInt(hoursTextField.getText()), Integer.parseInt(minutesTextField.getText()), (String) importanceBox.getSelectedItem());
-                mapOfPlannings.get(dateString).addTasks(task);
+                mapOfPlannings.get(dateString).addTask(task);
                 voegJlistToe();
 
                 taskField.setText("Add new task");
@@ -130,11 +132,13 @@ public class DailyPlanner {
         //REMOVE BUTTON
         removeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+
                 int selectedIndex = taskUIList.getSelectedIndex();
                 int hours = listModel.get(selectedIndex).getHours();
                 int minutes = listModel.get(selectedIndex).getMinutes();
                 ArrayList<Task> taskList = mapOfPlannings.get(dateString).getTasks();
                 taskList.removeIf(t -> t.getHours() == hours && t.getMinutes() == minutes);
+
                 mapOfPlannings.get(dateString).setTasks(taskList);
 
                 writeMapToCSV("Files/tasks.csv");
@@ -161,15 +165,12 @@ public class DailyPlanner {
     }
 
     public void filterModel(DefaultListModel<Task> model, String filter) {
-        for (Task t : sortHashMap().values()) {
-            if (!t.getOmschrijving().startsWith(filter)) {
-                if (model.contains(t.getOmschrijving())) {
-                    model.removeElement(t);
-                }
-            } else {
-                if (!model.contains(t.getOmschrijving())) {
-                    model.addElement(t);
-                }
+        List<Task> tasks = mapOfPlannings.get(dateString).getTasks();
+        Iterator<Task> it = tasks.iterator();
+        while (it.hasNext()) {
+            Task task = it.next();
+            if (task.getOmschrijving().toLowerCase().contains(filter.toLowerCase())) {
+                model.addElement(task);
             }
         }
     }
